@@ -1,0 +1,29 @@
+{% extends 'ars_crm/base.html' %}
+{% block title %}Access & roles{% endblock %}
+{% block page_heading %}Access &amp; roles{% endblock %}
+{% block page_subtitle %}<p class="text-secondary">Approve accounts, manage roles, and review password help requests.</p>{% endblock %}
+{% block content %}
+<section class="content-card p-3 mb-4">
+  <h2 class="h5">Password help requests</h2>
+  <p class="text-secondary">Set a temporary password to resolve a request. The staff member must change it at their next sign-in. Share temporary passwords securely; the CRM never emails them.</p>
+  <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Staff member</th><th>Requested</th><th>Set temporary password</th><th></th></tr></thead><tbody>
+  {% for reset_request in password_reset_requests %}
+    <tr><td><strong>{{ reset_request.user.get_full_name }}</strong><div class="small text-secondary">{{ reset_request.user.email }}</div></td><td>{{ reset_request.created_at|date:'d M Y, H:i' }}</td>
+      <td><form method="post" class="row g-2">{% csrf_token %}<input type="hidden" name="action" value="set_temporary_password"><input type="hidden" name="request_id" value="{{ reset_request.pk }}">
+        <div class="col-md-5"><input class="form-control" type="password" name="temporary_password" minlength="10" placeholder="Temporary password" autocomplete="new-password" required></div>
+        <div class="col-md-5"><input class="form-control" type="password" name="confirm_password" minlength="10" placeholder="Confirm temporary password" autocomplete="new-password" required></div>
+        <div class="col-md-2"><button class="btn btn-sm btn-primary-green">Set password</button></div>
+        {% if active_password_request_id == reset_request.pk %}{% for field, errors in password_request_form.errors.items %}<div class="col-12 text-danger small">{{ errors|join:' ' }}</div>{% endfor %}{% endif %}
+      </form></td>
+      <td><form method="post">{% csrf_token %}<input type="hidden" name="action" value="deny_password_request"><input type="hidden" name="request_id" value="{{ reset_request.pk }}"><button class="btn btn-sm btn-outline-secondary">Deny</button></form></td>
+    </tr>
+  {% empty %}<tr><td colspan="4" class="text-secondary">No pending password help requests.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="content-card p-3 mb-4"><h2 class="h5">Staff accounts</h2><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Person</th><th>Role, access and setup</th><th>Save</th></tr></thead><tbody>
+{% for member in staff_members %}
+<tr><td><strong>{{ member.get_full_name }}</strong><div class="small text-secondary">{{ member.email }} · {{ member.get_department_display|default:'—' }}</div></td><td colspan="2"><form method="post" class="row g-2 align-items-center">{% csrf_token %}<input type="hidden" name="user_id" value="{{ member.pk }}"><div class="col-md-3"><select class="form-select" name="role">{% for value,label in roles %}<option value="{{ value }}" {% if member.role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div><div class="col-md-3"><select class="form-select" name="is_active"><option value="1" {% if member.is_active %}selected{% endif %}>Active</option><option value="0" {% if not member.is_active %}selected{% endif %}>Pending / disabled</option></select></div>{% if not member.has_usable_password %}<div class="col-md-2"><input class="form-control" type="password" name="temporary_password" minlength="10" placeholder="Temporary password" autocomplete="new-password"></div><div class="col-md-2"><input class="form-control" type="password" name="confirm_password" minlength="10" placeholder="Confirm password" autocomplete="new-password"></div>{% endif %}<div class="col-md-2"><button class="btn btn-sm btn-primary-green">Save access</button></div></form></td></tr>
+{% empty %}<tr><td colspan="3">No staff accounts.</td></tr>{% endfor %}
+</tbody></table></div></section>
+<section class="content-card p-4"><h2 class="h5">Role permissions</h2><div class="table-responsive"><table class="table"><thead><tr><th>Module</th><th>Owner</th><th>Manager</th><th>Staff</th></tr></thead><tbody><tr><td>Staff, attendance, assignments, performance</td><td>Manage</td><td>Manage</td><td>Own records</td></tr><tr><td>Payroll</td><td>Manage all</td><td>—</td><td>Own pay slip</td></tr><tr><td>Access &amp; settings</td><td>Manage</td><td>—</td><td>—</td></tr></tbody></table></div></section>
+{% endblock %}

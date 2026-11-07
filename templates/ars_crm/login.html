@@ -1,0 +1,51 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#061e19"><title>Staff sign in | ARS Garments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{% static 'ars_crm/css/app.css' %}" rel="stylesheet"><link href="{% static 'ars_crm/css/auth.css' %}" rel="stylesheet">
+</head>
+<body class="auth-body">
+  <main class="auth-page">
+    <header class="auth-heading"><p>ARS GARMENTS <span>•</span> STAFF WORKSPACE</p><h1>Every stitch starts with <em>your team.</em></h1></header>
+    {% if messages %}<div class="auth-notices" aria-live="polite">{% for message in messages %}<p class="auth-notice">{{ message }}</p>{% endfor %}</div>{% endif %}
+    <section class="auth-card" id="authCard" aria-label="Staff account access">
+      <div class="auth-panel login-panel" aria-label="Sign in">
+        <div class="auth-form-panel">
+          <div class="auth-brand"><img class="auth-brand-logo" src="{% static 'ars_crm/ars2.jpeg' %}" alt=""><span>ARS Garments<small>STAFF CRM</small></span></div>
+          <h2>Welcome back</h2><p class="auth-sub">Sign in to manage your work and daily tasks.</p>
+          {% if form.non_field_errors %}<div class="form-alert" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+          <form method="post" action="{% url 'login' %}" class="auth-form" novalidate>
+            {% csrf_token %}<input type="hidden" name="next" value="{{ next|default:'' }}">
+            <div class="auth-field"><label for="id_username">Work email</label>{{ form.username }}{% for error in form.username.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+            <div class="auth-field"><label for="id_password">Password</label><div class="password-wrap">{{ form.password }}<button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye"></i></button></div>{% for error in form.password.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>
+            <div class="auth-meta"><label class="remember-label"><input type="checkbox" name="remember" value="1"><span>Remember me</span></label><a href="{% url 'password_reset' %}">Forgot password?</a></div>
+            <button class="auth-submit" type="submit">Sign in <i class="bi bi-arrow-right ms-2"></i></button>
+          </form>
+          <p class="auth-bottom">Need staff access? <button type="button" class="auth-switch" data-switch="signup">Request an account</button></p>
+          <p class="auth-footnote"><i class="bi bi-shield-lock me-1"></i>For authorized ARS Garments staff</p>
+        </div>
+      </div>
+      <div class="auth-panel signup-panel" aria-label="Request staff access" inert>
+        <div class="auth-form-panel request-panel-inner">
+          <div class="auth-brand"><img class="auth-brand-logo" src="{% static 'ars_crm/ars2.jpeg' %}" alt=""><span>ARS Garments<small>STAFF CRM</small></span></div>
+          <h2>Request access</h2><p class="auth-sub">Send your details to the owner for approval.</p>
+          <form method="post" action="{% url 'request_access' %}" class="auth-form">
+            {% csrf_token %}
+            {% for field in request_form %}<div class="auth-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}</div>{% endfor %}
+            <button class="auth-submit" type="submit">Send access request <i class="bi bi-arrow-right ms-2"></i></button>
+          </form>
+          <p class="auth-bottom">Already have access? <button type="button" class="auth-switch" data-switch="login">Sign in</button></p>
+          <p class="auth-footnote"><i class="bi bi-info-circle me-1"></i>Accounts stay inactive until approved</p>
+        </div>
+      </div>
+      <div class="auth-welcome" aria-hidden="true"><div class="welcome-art"><span class="art-ring art-ring-one"></span><span class="art-ring art-ring-two"></span><span class="art-needle"><i class="bi bi-scissors"></i></span></div><p class="welcome-eyebrow">MADE FOR THE PEOPLE BEHIND EVERY STITCH</p><h2 id="welcomeTitle">Welcome<br><em>back.</em></h2><p class="welcome-copy" id="welcomeText">Good to see you again.<br>Let's get today's work in motion.</p><span class="welcome-rule"></span><span class="welcome-bottom">TIRUPUR · INDIA</span></div>
+      <div class="auth-slider" aria-hidden="true"><div class="slider-shape"></div></div>
+    </section>
+    <footer class="auth-page-footer">ARS GARMENTS <span>·</span> INTERNAL STAFF PORTAL</footer>
+  </main>
+  <script src="{% static 'ars_crm/js/auth.js' %}" defer></script>
+</body></html>

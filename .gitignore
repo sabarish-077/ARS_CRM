@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+media/
+staticfiles/
+.vercel/
+.env.local
+ca.pem
+ars_crm.sql
+*.sql
+.stitch_reference/
