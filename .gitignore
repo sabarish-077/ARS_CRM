@@ -11,3 +11,5 @@ ca.pem
 ars_crm.sql
 *.sql
 .stitch_reference/
+.vercel
+.env*

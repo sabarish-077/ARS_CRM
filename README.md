@@ -49,7 +49,7 @@ user, then:
 
 Vercel detects this project from `manage.py` and collects static assets because
 `STATIC_ROOT` is configured. Add these environment variables in the Vercel
-Project Settings for Production and Preview:
+Project Settings for Production:
 
 - `DJANGO_SECRET_KEY`: use the private key generated for this project.
 - `DJANGO_DEBUG`: `false`.
@@ -59,8 +59,8 @@ Project Settings for Production and Preview:
   custom domains. Vercel deployment domains are trusted automatically.
 - `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`: Aiven connection
   values from the service's Connection information panel.
-- `DB_SSL_CA`: paste the full PEM contents of the Aiven CA certificate as a
-  private environment variable; do not use a local filesystem path in Vercel.
+- `DB_SSL_CA_BASE64`: base64-encoded contents of the Aiven CA certificate;
+  keep the local CA file out of source control.
 
 The Aiven database migrations have already been applied. Do not run migrations
 as part of every deployment. Create the first owner with

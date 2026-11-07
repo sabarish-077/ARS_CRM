@@ -24,7 +24,17 @@ WSGI_APPLICATION = "ars_crm.wsgi.application"
 ASGI_APPLICATION = "ars_crm.asgi.application"
 db_options = {"charset": "utf8mb4"}
 db_ssl_ca = os.getenv("DB_SSL_CA", "").strip()
-if db_ssl_ca:
+db_ssl_ca_base64 = os.getenv("DB_SSL_CA_BASE64", "").strip()
+if db_ssl_ca_base64:
+    import base64
+    import tempfile
+
+    ca_contents = base64.b64decode(db_ssl_ca_base64, validate=True).decode("utf-8")
+    ca_file = tempfile.NamedTemporaryFile(mode="w", suffix=".pem", prefix="ars-crm-db-ca-", delete=False)
+    ca_file.write(ca_contents)
+    ca_file.close()
+    db_ssl_ca = ca_file.name
+elif db_ssl_ca:
     # Deploy platforms can provide the CA as a PEM environment variable;
     # local development can point DB_SSL_CA at a downloaded .pem file.
     if "-----BEGIN CERTIFICATE-----" in db_ssl_ca:
