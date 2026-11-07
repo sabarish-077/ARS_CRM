@@ -29,7 +29,10 @@ if db_ssl_ca_base64:
     import base64
     import tempfile
 
-    ca_contents = base64.b64decode(db_ssl_ca_base64, validate=True).decode("utf-8")
+    # Environment-variable input can preserve line breaks from PowerShell's
+    # stdin pipe; remove whitespace while keeping strict character validation.
+    ca_value = "".join(db_ssl_ca_base64.split())
+    ca_contents = base64.b64decode(ca_value, validate=True).decode("utf-8")
     ca_file = tempfile.NamedTemporaryFile(mode="w", suffix=".pem", prefix="ars-crm-db-ca-", delete=False)
     ca_file.write(ca_contents)
     ca_file.close()
@@ -48,6 +51,7 @@ elif db_ssl_ca:
         ca_path = Path(db_ssl_ca)
         if not ca_path.is_absolute():
             db_ssl_ca = str(BASE_DIR / ca_path)
+if db_ssl_ca:
     db_options.update({"ssl_ca": db_ssl_ca, "ssl_verify_cert": True, "ssl_verify_identity": True})
 
 DATABASES = {"default": {"ENGINE": "django.db.backends.mysql", "NAME": os.getenv("DB_NAME", "ars_garments_crm"), "USER": os.getenv("DB_USER", ""), "PASSWORD": os.getenv("DB_PASSWORD", ""), "HOST": os.getenv("DB_HOST", "127.0.0.1"), "PORT": os.getenv("DB_PORT", "3306"), "OPTIONS": db_options, "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60"))}}
