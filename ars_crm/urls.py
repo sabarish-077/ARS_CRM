@@ -1,9 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.views.generic.base import RedirectView
 from django.urls import path
 from staff import views
 
 urlpatterns = [
+    path("favicon.ico", RedirectView.as_view(url="/static/ars_crm/favicon.svg", permanent=False), name="favicon"),
     path("admin/", admin.site.urls),
     path("", views.dashboard, name="dashboard"),
     path("login/", views.CRMLoginView.as_view(), name="login"),
