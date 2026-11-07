@@ -54,7 +54,19 @@ elif db_ssl_ca:
 if db_ssl_ca:
     db_options.update({"ssl_ca": db_ssl_ca, "ssl_verify_cert": True, "ssl_verify_identity": True})
 
-DATABASES = {"default": {"ENGINE": "django.db.backends.mysql", "NAME": os.getenv("DB_NAME", "ars_garments_crm"), "USER": os.getenv("DB_USER", ""), "PASSWORD": os.getenv("DB_PASSWORD", ""), "HOST": os.getenv("DB_HOST", "127.0.0.1"), "PORT": os.getenv("DB_PORT", "3306"), "OPTIONS": db_options, "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60"))}}
+database_url = os.getenv("DATABASE_URL", "").strip()
+if database_url:
+    from dj_database_url import parse as parse_database_url
+
+    postgres_config = parse_database_url(database_url, conn_max_age=0, conn_health_checks=True)
+    if postgres_config["ENGINE"] not in {"django.db.backends.postgresql", "django.db.backends.postgresql_psycopg2"}:
+        raise ValueError("DATABASE_URL must use PostgreSQL (postgres:// or postgresql://).")
+    postgres_config["ENGINE"] = "django.db.backends.postgresql"
+    postgres_config.setdefault("OPTIONS", {})
+    postgres_config["OPTIONS"].setdefault("sslmode", "require")
+    DATABASES = {"default": postgres_config}
+else:
+    DATABASES = {"default": {"ENGINE": "django.db.backends.mysql", "NAME": os.getenv("DB_NAME", "ars_garments_crm"), "USER": os.getenv("DB_USER", ""), "PASSWORD": os.getenv("DB_PASSWORD", ""), "HOST": os.getenv("DB_HOST", "127.0.0.1"), "PORT": os.getenv("DB_PORT", "3306"), "OPTIONS": db_options, "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60"))}}
 AUTH_USER_MODEL = "staff.StaffUser"
 AUTH_PASSWORD_VALIDATORS = [{"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"}, {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"}, {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"}, {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"}]
 LANGUAGE_CODE = "en-in"

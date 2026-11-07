@@ -61,6 +61,8 @@ Project Settings for Production:
   values from the service's Connection information panel.
 - `DB_SSL_CA_BASE64`: base64-encoded contents of the Aiven CA certificate;
   keep the local CA file out of source control.
+- `DATABASE_URL`: optional Neon PostgreSQL connection string. When set, Django
+  uses PostgreSQL; when blank, it keeps using the local MySQL configuration.
 
 The Aiven database migrations have already been applied. Do not run migrations
 as part of every deployment. Create the first owner with
@@ -68,6 +70,17 @@ as part of every deployment. Create the first owner with
 the same environment values are available locally. Vercel's function filesystem
 is not durable storage, so staff profile photo uploads need an external object
 storage backend before using uploads in production.
+
+To move from Aiven MySQL to Neon PostgreSQL, first take an Aiven backup and
+create/connect a Neon project. Export records while using the current MySQL
+environment with `python manage.py dumpdata --natural-foreign
+--natural-primary --exclude contenttypes --exclude auth.permission --indent 2
+> ars-crm-data.json`. Then set `DATABASE_URL` to Neon's pooled connection string
+in a new PowerShell session, run `python manage.py migrate`, and load the fixture
+with `python manage.py loaddata ars-crm-data.json`. Add that same `DATABASE_URL`
+to Vercel Production and redeploy. Verify owner login and key CRM records before
+changing or deleting Aiven. The fixture does not include uploaded photos; copy
+the media files to durable object storage separately.
 
 Staff can change passwords while signed in from the sidebar's **Change
 password** option. The sign-in page's **Forgot password?** link creates a

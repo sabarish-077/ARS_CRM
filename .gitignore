@@ -3,6 +3,7 @@
 __pycache__/
 *.py[cod]
 *.sqlite3
+ars-crm-data.json
 media/
 staticfiles/
 .vercel/

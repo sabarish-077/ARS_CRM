@@ -3,3 +3,5 @@ PyMySQL>=1.1,<2
 python-dotenv>=1.0,<2
 Pillow>=10.0,<13
 cryptography>=42
+dj-database-url>=2.2,<3
+psycopg[binary]>=3.2,<4
